@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <!-- Project coordinates -->
+    <groupId>com.example</groupId>
+    <artifactId>functional-programming-concepts</artifactId>
+    <version>0.1-SNAPSHOT</version>
+    <packaging>jar</packaging>
+    <name>Functional Programming Concepts - Multi-language Examples</name>
+    <description>Multi-language FP concepts with Java and Scala sources in project root (java/, scala/)</description>
+
+    <properties>
+        <!-- Java toolchain -->
+        <maven.compiler.release>21</maven.compiler.release>
+        <maven.compiler.plugin.version>3.13.0</maven.compiler.plugin.version>
+
+        <!-- Test platform -->
+        <maven.surefire.plugin.version>3.2.5</maven.surefire.plugin.version>
+        <junit.jupiter.version>5.10.2</junit.jupiter.version>
+        <jqwik.version>1.8.4</jqwik.version>
+
+        <!-- Scala toolchain -->
+        <scala.version>2.13.14</scala.version>
+        <scala.maven.plugin.version>4.9.0</scala.maven.plugin.version>
+        <build.helper.plugin.version>3.5.0</build.helper.plugin.version>
+
+        <!-- Ensure UTF-8 across the build (fixes Cp1252 unmappable character errors) -->
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+    </properties>
+
+    <dependencies>
+        <!-- Scala standard library (needed if you have Scala code) -->
+        <dependency>
+            <groupId>org.scala-lang</groupId>
+            <artifactId>scala-library</artifactId>
+            <version>${scala.version}</version>
+        </dependency>
+
+        <!-- Cats (Scala FP library) for Scala 2.13 -->
+        <dependency>
+            <groupId>org.typelevel</groupId>
+            <artifactId>cats-core_2.13</artifactId>
+            <version>2.12.0</version>
+        </dependency>
+
+        <!-- JUnit 5 (runs on JUnit Platform) -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>${junit.jupiter.version}</version>
+<!--            <scope>test</scope>-->
+        </dependency>
+
+        <!-- jqwik property-based testing (discovered via JUnit Platform) -->
+        <dependency>
+            <groupId>net.jqwik</groupId>
+            <artifactId>jqwik</artifactId>
+            <version>${jqwik.version}</version>
+<!--            <scope>test</scope>-->
+        </dependency>
+
+        <!-- jqwik API (annotations for compile) -->
+        <dependency>
+            <groupId>net.jqwik</groupId>
+            <artifactId>jqwik-api</artifactId>
+            <version>${jqwik.version}</version>
+        </dependency>
+        <!-- jqwik Engine (test runtime only) -->
+        <dependency>
+            <groupId>net.jqwik</groupId>
+            <artifactId>jqwik-engine</artifactId>
+            <version>${jqwik.version}</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <!-- Add non-standard source roots: root/java, root/scala, and tests root/test/java, root/test/scala -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>${build.helper.plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>add-main-sources</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>add-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>${project.basedir}/java</source>
+                                <source>${project.basedir}/scala</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>add-test-sources</id>
+                        <phase>generate-test-sources</phase>
+                        <goals>
+                            <goal>add-test-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>${project.basedir}/test/java</source>
+                                <source>${project.basedir}/test/scala</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- Compile Scala sources (and mixed Java/Scala) -->
+            <plugin>
+                <groupId>net.alchim31.maven</groupId>
+                <artifactId>scala-maven-plugin</artifactId>
+                <version>${scala.maven.plugin.version}</version>
+                <executions>
+                    <!-- Compile main Scala before Java so Java can depend on Scala classes -->
+                    <execution>
+                        <id>scala-compile</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>compile</goal>
+                        </goals>
+                        <configuration>
+                            <scalaVersion>${scala.version}</scalaVersion>
+                            <args>
+                                <arg>-deprecation</arg>
+                                <arg>-feature</arg>
+                                <arg>-encoding</arg>
+                                <arg>UTF-8</arg>
+                                <arg>-release</arg>
+                                <arg>21</arg>
+                            </args>
+                        </configuration>
+                    </execution>
+                    <!-- Compile test Scala before Java tests -->
+                    <execution>
+                        <id>scala-test-compile</id>
+                        <phase>test-compile</phase>
+                        <goals>
+                            <goal>testCompile</goal>
+                        </goals>
+                        <configuration>
+                            <scalaVersion>${scala.version}</scalaVersion>
+                            <args>
+                                <arg>-encoding</arg>
+                                <arg>UTF-8</arg>
+                                <arg>-release</arg>
+                                <arg>21</arg>
+                            </args>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- Java compiler (after Scala) -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${maven.compiler.plugin.version}</version>
+                <configuration>
+                    <release>${maven.compiler.release}</release>
+                    <encoding>UTF-8</encoding>
+                </configuration>
+            </plugin>
+
+            <!-- Ensure resources are treated as UTF-8 -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>3.3.1</version>
+                <configuration>
+                    <encoding>${project.build.sourceEncoding}</encoding>
+                </configuration>
+            </plugin>
+
+            <!-- JUnit Platform (jqwik engine is auto-discovered); force UTF-8 during tests -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>${maven.surefire.plugin.version}</version>
+                <configuration>
+                    <useModulePath>false</useModulePath>
+                    <systemPropertyVariables>
+                        <file.encoding>UTF-8</file.encoding>
+                    </systemPropertyVariables>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>
