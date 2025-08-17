@@ -1,18 +1,18 @@
 """
  FP CONCEPTS (Python 3.10+) — ALL IN ONE, ANNOTATED
- 1) Lambda, Application, Currying, Partial Application — lambdas, currying via closures, partials.
- 2) Composition (∘) — compose(f, g)(x) == f(g(x)).
- 3) Referential Transparency — pure expressions can be replaced by their values.
- 4) Immutability — frozen dataclasses / copy functions; avoid in‑place mutation.
- 5) Higher‑Order Functions — map/filter/reduce pipelines.
- 6) Functor — map on custom Maybe preserving structure.
- 7) Applicative — ap / liftA2 on Option to combine independent contexts.
- 8) Monad — flat_map for dependent sequencing.
- 9) Natural Transformation — list -> Maybe (head).
- 10) Monoid — reduce with associative op and identity.
- 11) ADTs & Pattern Matching — dataclasses + match (3.10+).
- 12) Effects at the Edges — keep core pure; perform I/O in main.
- 13) Property‑Based Testing — outline with hypothesis.
+ 1) Lambda, Application, Currying, Partial Application — Anonymous functions, function invocation, transforming multi-parameter functions into single-parameter chains
+ 2) Composition (∘) — Combining functions where output of one becomes input of another
+ 3) Referential Transparency — Expressions can be replaced with their values without changing program behavior
+ 4) Immutability — Data structures that cannot be modified after creation
+ 5) Higher‑Order Functions (HOFs) — Functions that take other functions as parameters or return functions
+ 6) Functor (map) — Containers that can apply functions to wrapped values while preserving structure
+ 7) Applicative (ap / mapN) — Enhanced functors that can apply wrapped functions to wrapped values
+ 8) Monad (flatMap / bind) — Containers supporting sequential computation with context-aware chaining
+ 9) Natural Transformation — Structure-preserving mappings between functors
+ 10) Monoid (associative op + identity) — Types with associative binary operation and identity element
+ 11) Algebraic Data Types (ADTs) & Pattern Matching — Sum and product types with exhaustive case analysis
+ 12) Effects at the Edges — Isolating side effects to program boundaries while keeping core logic pure
+ 13) Property‑Based Testing of Laws — Verifying mathematical properties hold across generated test cases
 """
 from __future__ import annotations
 from dataclasses import dataclass, replace
@@ -933,7 +933,7 @@ if __name__ == "__main__":
 - Equality: use == for deep equality of lists.
 
 7. Minimal runnable shape
-
+Up
 - @given(st.lists(st.integers()))
 - def test_functor_identity(xs):
 -   assert list(map(lambda x: x, xs)) == xs

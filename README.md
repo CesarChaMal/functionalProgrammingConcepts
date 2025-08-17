@@ -8,19 +8,19 @@ Each file contains **complete code examples** with in-line explanations, coverin
 
 ## 📚 Concepts Included
 
-1. Lambda, Application, Currying, Partial Application
-2. Composition (∘)
-3. Referential Transparency
-4. Immutability
-5. Higher‑Order Functions (HOFs)
-6. Functor (map)
-7. Applicative (ap / mapN)
-8. Monad (flatMap / bind)
-9. Natural Transformation
-10. Monoid (associative op + identity)
-11. Algebraic Data Types (ADTs) & Pattern Matching
-12. Effects at the Edges
-13. Property‑Based Testing of Laws
+1. **Lambda, Application, Currying, Partial Application** — Anonymous functions, function invocation, transforming multi-parameter functions into single-parameter chains
+2. **Composition (∘)** — Combining functions where output of one becomes input of another
+3. **Referential Transparency** — Expressions can be replaced with their values without changing program behavior
+4. **Immutability** — Data structures that cannot be modified after creation
+5. **Higher‑Order Functions (HOFs)** — Functions that take other functions as parameters or return functions
+6. **Functor (map)** — Containers that can apply functions to wrapped values while preserving structure
+7. **Applicative (ap / mapN)** — Enhanced functors that can apply wrapped functions to wrapped values
+8. **Monad (flatMap / bind)** — Containers supporting sequential computation with context-aware chaining
+9. **Natural Transformation** — Structure-preserving mappings between functors
+10. **Monoid (associative op + identity)** — Types with associative binary operation and identity element
+11. **Algebraic Data Types (ADTs) & Pattern Matching** — Sum and product types with exhaustive case analysis
+12. **Effects at the Edges** — Isolating side effects to program boundaries while keeping core logic pure
+13. **Property‑Based Testing of Laws** — Verifying mathematical properties hold across generated test cases
 
 ---
 

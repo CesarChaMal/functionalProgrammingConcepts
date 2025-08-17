@@ -1,19 +1,18 @@
 /*
  FP CONCEPTS (Scala) — ALL IN ONE, ANNOTATED
- 1) Lambda, Application, Currying, Partial Application — Lambdas are anonymous functions; application calls them.
-    Currying converts (x,y) -> z into x -> (y -> z). Partial application fixes some args and returns a new func.
- 2) Composition (∘) — If g: A->B and f: B->C then (f ∘ g): A->C; promotes pipeline thinking.
- 3) Referential Transparency — Replace an expression by its value without changing behavior (pure, side‑effect free).
- 4) Immutability — Create new values instead of mutating; avoids shared‑state bugs.
- 5) Higher‑Order Functions (HOFs) — Functions that take/return functions; map/filter/reduce pipelines.
- 6) Functor — Context F[_] with map that preserves structure and laws (identity, composition).
- 7) Applicative — Combine independent contexts; e.g., building values from multiple Options.
- 8) Monad — flatMap to sequence dependent computations; laws: left/right identity, associativity.
- 9) Natural Transformation — Uniform, structure‑preserving F[A] -> G[A]; e.g., List ~> Option.
- 10) Monoid — Associative binary op with identity; enables safe folding.
- 11) ADTs & Pattern Matching — Sum/Product types with exhaustive handling.
- 12) Effects at the Edges — Keep core logic pure; do I/O at boundaries.
- 13) Property‑Based Testing (outline) — Check laws via randomized tests (ScalaCheck/Cats‑laws).
+ 1) Lambda, Application, Currying, Partial Application — Anonymous functions, function invocation, transforming multi-parameter functions into single-parameter chains
+ 2) Composition (∘) — Combining functions where output of one becomes input of another
+ 3) Referential Transparency — Expressions can be replaced with their values without changing program behavior
+ 4) Immutability — Data structures that cannot be modified after creation
+ 5) Higher‑Order Functions (HOFs) — Functions that take other functions as parameters or return functions
+ 6) Functor (map) — Containers that can apply functions to wrapped values while preserving structure
+ 7) Applicative (ap / mapN) — Enhanced functors that can apply wrapped functions to wrapped values
+ 8) Monad (flatMap / bind) — Containers supporting sequential computation with context-aware chaining
+ 9) Natural Transformation — Structure-preserving mappings between functors
+ 10) Monoid (associative op + identity) — Types with associative binary operation and identity element
+ 11) Algebraic Data Types (ADTs) & Pattern Matching — Sum and product types with exhaustive case analysis
+ 12) Effects at the Edges — Isolating side effects to program boundaries while keeping core logic pure
+ 13) Property‑Based Testing of Laws — Verifying mathematical properties hold across generated test cases
 
  Note: For Applicative/Monoid helpers we use Cats. In sbt add:
  libraryDependencies += "org.typelevel" %% "cats-core" % "2.12.0"
