@@ -1,5 +1,7 @@
 /*
- FP CONCEPTS (Java 17+) — ALL IN ONE, ANNOTATED
+ FP CONCEPTS (Java 17+) — COMPREHENSIVE ANNOTATED GUIDE
+ 
+ CORE CONCEPTS (1-8):
  1) Lambda, Application, Currying, Partial Application — Anonymous functions, function invocation, transforming multi-parameter functions into single-parameter chains
  2) Composition (∘) — Combining functions where output of one becomes input of another
  3) Referential Transparency — Expressions can be replaced with their values without changing program behavior
@@ -8,11 +10,16 @@
  6) Functor (map) — Containers that can apply functions to wrapped values while preserving structure
  7) Applicative (ap / mapN) — Enhanced functors that can apply wrapped functions to wrapped values
  8) Monad (flatMap / bind) — Containers supporting sequential computation with context-aware chaining
+ 
+ ADVANCED CONCEPTS (9-16):
  9) Natural Transformation — Structure-preserving mappings between functors
  10) Monoid (associative op + identity) — Types with associative binary operation and identity element
  11) Algebraic Data Types (ADTs) & Pattern Matching — Sum and product types with exhaustive case analysis
  12) Effects at the Edges — Isolating side effects to program boundaries while keeping core logic pure
  13) Property‑Based Testing of Laws — Verifying mathematical properties hold across generated test cases
+ 14) Lazy Evaluation — Deferring computation until values are actually needed (Supplier, Stream)
+ 15) Tail Call Optimization — Stack-safe recursion through iteration or trampolines
+ 16) Generic Type Constraints — Bounded wildcards and type safety in functional interfaces
 */
 
 import java.util.*;
@@ -921,6 +928,61 @@ Key takeaways
 //   void functorIdentity(@ForAll List<Integer> xs){
 //     Assertions.assertEquals(xs, xs.stream().map(Function.identity()).toList());
 //   }
+
+  // 14) Lazy Evaluation: defer computation with Supplier and Stream
+  static final Supplier<Integer> lazyComputation = () -> {
+    System.out.println("Computing...");
+    return 42;
+  };
+  // Only computed when .get() is called
+  static final int lazyResult = lazyComputation.get(); // Prints "Computing..." here
+
+  // Infinite streams (lazy evaluation)
+  static Stream<Integer> fibonacci() {
+    return Stream.iterate(new int[]{0, 1}, arr -> new int[]{arr[1], arr[0] + arr[1]})
+                 .mapToInt(arr -> arr[0]);
+  }
+  static final var first10Fibs = fibonacci().limit(10).toList(); // [0,1,1,2,3,5,8,13,21,34]
+
+  // 15) Tail Call Optimization: stack-safe recursion via iteration
+  static int factorial(int n) {
+    int result = 1;
+    while (n > 1) {
+      result *= n--;
+    }
+    return result;
+  }
+  static final int fact5 = factorial(5); // 120, no stack overflow
+
+  // Trampoline pattern for mutual recursion
+  sealed interface Trampoline<T> {
+    record Done<T>(T value) implements Trampoline<T> {}
+    record More<T>(Supplier<Trampoline<T>> next) implements Trampoline<T> {}
+    
+    static <T> T run(Trampoline<T> trampoline) {
+      while (trampoline instanceof More<T> more) {
+        trampoline = more.next().get();
+      }
+      return ((Done<T>) trampoline).value();
+    }
+  }
+
+  // 16) Generic Type Constraints: bounded wildcards for type safety
+  static <T extends Number> double sumNumbers(List<T> numbers) {
+    return numbers.stream().mapToDouble(Number::doubleValue).sum();
+  }
+  
+  // Covariant (producer) - can read from
+  static double processProducer(List<? extends Number> producer) {
+    return producer.stream().mapToDouble(Number::doubleValue).sum();
+  }
+  
+  // Contravariant (consumer) - can write to
+  static void processConsumer(List<? super Integer> consumer) {
+    consumer.add(42);
+  }
+  
+  static final double numberSum = sumNumbers(List.of(1, 2.5, 3L)); // 6.5
 /*
 1. Line: a property, not an example — test many random inputs
 

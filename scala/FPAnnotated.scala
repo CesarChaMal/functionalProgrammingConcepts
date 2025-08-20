@@ -1,5 +1,7 @@
 /*
- FP CONCEPTS (Scala) — ALL IN ONE, ANNOTATED
+ FP CONCEPTS (Scala) — COMPREHENSIVE ANNOTATED GUIDE
+ 
+ CORE CONCEPTS (1-8):
  1) Lambda, Application, Currying, Partial Application — Anonymous functions, function invocation, transforming multi-parameter functions into single-parameter chains
  2) Composition (∘) — Combining functions where output of one becomes input of another
  3) Referential Transparency — Expressions can be replaced with their values without changing program behavior
@@ -8,11 +10,16 @@
  6) Functor (map) — Containers that can apply functions to wrapped values while preserving structure
  7) Applicative (ap / mapN) — Enhanced functors that can apply wrapped functions to wrapped values
  8) Monad (flatMap / bind) — Containers supporting sequential computation with context-aware chaining
+ 
+ ADVANCED CONCEPTS (9-16):
  9) Natural Transformation — Structure-preserving mappings between functors
  10) Monoid (associative op + identity) — Types with associative binary operation and identity element
  11) Algebraic Data Types (ADTs) & Pattern Matching — Sum and product types with exhaustive case analysis
  12) Effects at the Edges — Isolating side effects to program boundaries while keeping core logic pure
  13) Property‑Based Testing of Laws — Verifying mathematical properties hold across generated test cases
+ 14) Lazy Evaluation — Deferring computation until values are actually needed
+ 15) Tail Recursion — Stack-safe recursive functions that reuse stack frames
+ 16) Type Classes — Ad-hoc polymorphism through implicit evidence parameters
 
  Note: For Applicative/Monoid helpers we use Cats. In sbt add:
  libraryDependencies += "org.typelevel" %% "cats-core" % "2.12.0"
@@ -837,6 +844,50 @@ object FPAnnotated extends App {
 //      xs.map(f compose g) == xs.map(g).map(f)
 //    }
 //  }
+
+  // 14) Lazy Evaluation: defer computation until needed
+  lazy val expensiveComputation: Int = {
+    println("Computing...")
+    Thread.sleep(1000)
+    42
+  }
+  // Only computed when first accessed
+  val lazyResult = expensiveComputation // Prints "Computing..." here
+
+  // Stream (lazy list) - infinite sequences
+  def fibonacci: LazyList[Int] = {
+    def fib(a: Int, b: Int): LazyList[Int] = a #:: fib(b, a + b)
+    fib(0, 1)
+  }
+  val first10Fibs = fibonacci.take(10).toList // [0,1,1,2,3,5,8,13,21,34]
+
+  // 15) Tail Recursion: stack-safe recursive functions
+  @annotation.tailrec
+  def factorial(n: Int, acc: Int = 1): Int = {
+    if (n <= 1) acc
+    else factorial(n - 1, n * acc) // tail call - reuses stack frame
+  }
+  val fact5 = factorial(5) // 120, no stack overflow even for large n
+
+  // 16) Type Classes: ad-hoc polymorphism via implicits
+  trait Show[A] {
+    def show(a: A): String
+  }
+  
+  object Show {
+    def apply[A](implicit ev: Show[A]): Show[A] = ev
+    
+    implicit val intShow: Show[Int] = (i: Int) => i.toString
+    implicit val stringShow: Show[String] = (s: String) => s"\"$s\""
+    implicit def listShow[A](implicit sa: Show[A]): Show[List[A]] = 
+      (list: List[A]) => list.map(sa.show).mkString("[", ",", "]")
+  }
+  
+  def display[A](a: A)(implicit show: Show[A]): String = show.show(a)
+  
+  val showInt = display(42)                    // "42"
+  val showList = display(List(1, 2, 3))        // "[1,2,3]"
+  val showString = display("hello")             // "\"hello\""
   /*
   1. Lines: properties, not examples — test many random inputs
 

@@ -1,5 +1,7 @@
 /*
- FP CONCEPTS (TypeScript) — ALL IN ONE, ANNOTATED
+ FP CONCEPTS (TypeScript) — COMPREHENSIVE ANNOTATED GUIDE
+ 
+ CORE CONCEPTS (1-8):
  1) Lambda, Application, Currying, Partial Application — Anonymous functions, function invocation, transforming multi-parameter functions into single-parameter chains
  2) Composition (∘) — Combining functions where output of one becomes input of another
  3) Referential Transparency — Expressions can be replaced with their values without changing program behavior
@@ -8,11 +10,16 @@
  6) Functor (map) — Containers that can apply functions to wrapped values while preserving structure
  7) Applicative (ap / mapN) — Enhanced functors that can apply wrapped functions to wrapped values
  8) Monad (flatMap / bind) — Containers supporting sequential computation with context-aware chaining
+ 
+ ADVANCED CONCEPTS (9-16):
  9) Natural Transformation — Structure-preserving mappings between functors
  10) Monoid (associative op + identity) — Types with associative binary operation and identity element
  11) Algebraic Data Types (ADTs) & Pattern Matching — Sum and product types with exhaustive case analysis
  12) Effects at the Edges — Isolating side effects to program boundaries while keeping core logic pure
  13) Property‑Based Testing of Laws — Verifying mathematical properties hold across generated test cases
+ 14) Lazy Evaluation — Generators, async/await, and deferred computation
+ 15) Tail Call Optimization — Stack-safe recursion through iteration and trampolines
+ 16) Advanced Types — Conditional types, mapped types, and type-level programming
 */
 
 // 1) Lambda, Application, Currying, Partial Application
@@ -833,6 +840,110 @@ mainIO();
 // 13) Property‑Based Testing (outline with fast-check)
 // import * as fc from 'fast-check';
 // fc.assert(fc.property(fc.array(fc.integer()), xs => xs.map(x=>x).every((v,i) => v === xs[i])));
+
+// 14) Lazy Evaluation: generators and async patterns
+function* fibonacci(): Generator<number, never, unknown> {
+    let [a, b] = [0, 1];
+    while (true) {
+        yield a;
+        [a, b] = [b, a + b];
+    }
+}
+
+// Only computes values as needed
+const first10Fibs = Array.from({ length: 10 }, (_, i) => {
+    const gen = fibonacci();
+    for (let j = 0; j < i; j++) gen.next();
+    return gen.next().value;
+}); // [0,1,1,2,3,5,8,13,21,34]
+
+// Lazy property with getter
+class LazyValue<T> {
+    private computed = false;
+    private value?: T;
+    
+    constructor(private computation: () => T) {}
+    
+    get(): T {
+        if (!this.computed) {
+            console.log('Computing...');
+            this.value = this.computation();
+            this.computed = true;
+        }
+        return this.value!;
+    }
+}
+
+const lazyResult = new LazyValue(() => 42);
+
+// 15) Tail Call Optimization: iteration and trampolines
+function factorialIterative(n: number): number {
+    let result = 1;
+    while (n > 1) {
+        result *= n--;
+    }
+    return result;
+}
+
+// Trampoline pattern
+type Trampoline<T> = T | (() => Trampoline<T>);
+
+function trampoline<T>(fn: () => Trampoline<T>): T {
+    let result = fn();
+    while (typeof result === 'function') {
+        result = result();
+    }
+    return result;
+}
+
+function factorialTrampoline(n: number, acc: number = 1): Trampoline<number> {
+    if (n <= 1) return acc;
+    return () => factorialTrampoline(n - 1, n * acc);
+}
+
+const fact5 = trampoline(() => factorialTrampoline(5)); // 120
+
+// 16) Advanced Types: conditional and mapped types
+type IsArray<T> = T extends readonly unknown[] ? true : false;
+type ArrayElement<T> = T extends readonly (infer U)[] ? U : never;
+
+// Mapped type for making properties optional
+type Partial<T> = {
+    [P in keyof T]?: T[P];
+};
+
+// Conditional type for function return types
+type ReturnType<T> = T extends (...args: any[]) => infer R ? R : never;
+
+// Template literal types
+type EventName<T extends string> = `on${Capitalize<T>}`;
+type ClickEvent = EventName<'click'>; // 'onClick'
+
+// Utility type for deep readonly
+type DeepReadonly<T> = {
+    readonly [P in keyof T]: T[P] extends object ? DeepReadonly<T[P]> : T[P];
+};
+
+interface User {
+    name: string;
+    address: {
+        street: string;
+        city: string;
+    };
+}
+
+type ReadonlyUser = DeepReadonly<User>;
+// All properties and nested properties are readonly
+
+// Type-level computation
+type Length<T extends readonly unknown[]> = T['length'];
+type Head<T extends readonly unknown[]> = T extends readonly [infer H, ...unknown[]] ? H : never;
+type Tail<T extends readonly unknown[]> = T extends readonly [unknown, ...infer Rest] ? Rest : never;
+
+type ExampleArray = [1, 2, 3, 4];
+type ArrayLength = Length<ExampleArray>; // 4
+type FirstElement = Head<ExampleArray>;  // 1
+type RestElements = Tail<ExampleArray>;  // [2, 3, 4]
 /*
 1. Line: a property, not an example — test many random inputs
 

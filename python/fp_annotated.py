@@ -1,5 +1,7 @@
 """
- FP CONCEPTS (Python 3.10+) — ALL IN ONE, ANNOTATED
+ FP CONCEPTS (Python 3.10+) — COMPREHENSIVE ANNOTATED GUIDE
+ 
+ CORE CONCEPTS (1-8):
  1) Lambda, Application, Currying, Partial Application — Anonymous functions, function invocation, transforming multi-parameter functions into single-parameter chains
  2) Composition (∘) — Combining functions where output of one becomes input of another
  3) Referential Transparency — Expressions can be replaced with their values without changing program behavior
@@ -8,11 +10,16 @@
  6) Functor (map) — Containers that can apply functions to wrapped values while preserving structure
  7) Applicative (ap / mapN) — Enhanced functors that can apply wrapped functions to wrapped values
  8) Monad (flatMap / bind) — Containers supporting sequential computation with context-aware chaining
+ 
+ ADVANCED CONCEPTS (9-16):
  9) Natural Transformation — Structure-preserving mappings between functors
  10) Monoid (associative op + identity) — Types with associative binary operation and identity element
  11) Algebraic Data Types (ADTs) & Pattern Matching — Sum and product types with exhaustive case analysis
  12) Effects at the Edges — Isolating side effects to program boundaries while keeping core logic pure
  13) Property‑Based Testing of Laws — Verifying mathematical properties hold across generated test cases
+ 14) Lazy Evaluation — Generators, itertools, and deferred computation
+ 15) Tail Recursion — Stack-safe recursion through iteration and trampolines
+ 16) Protocol Classes — Structural typing and duck typing with type hints
 """
 from __future__ import annotations
 from dataclasses import dataclass, replace
@@ -882,6 +889,105 @@ if __name__ == "__main__":
 # @given(st.lists(st.integers()))
 # def test_functor_identity(xs):
 #     assert list(map(lambda x: x, xs)) == xs
+
+# 14) Lazy Evaluation: generators and itertools
+def fibonacci():
+    """Infinite fibonacci generator - lazy evaluation"""
+    a, b = 0, 1
+    while True:
+        yield a
+        a, b = b, a + b
+
+# Only computes values as needed
+first_10_fibs = list(itertools.islice(fibonacci(), 10))  # [0,1,1,2,3,5,8,13,21,34]
+
+# Lazy computation with properties
+class LazyProperty:
+    def __init__(self, func):
+        self.func = func
+        self.computed = False
+        self.value = None
+    
+    def __get__(self, obj, objtype=None):
+        if not self.computed:
+            print("Computing...")
+            self.value = self.func(obj)
+            self.computed = True
+        return self.value
+
+class Example:
+    @LazyProperty
+    def expensive_computation(self):
+        import time
+        time.sleep(1)
+        return 42
+
+# 15) Tail Recursion: iteration and trampolines
+def factorial_iterative(n: int) -> int:
+    """Stack-safe factorial using iteration"""
+    result = 1
+    while n > 1:
+        result *= n
+        n -= 1
+    return result
+
+# Trampoline pattern for mutual recursion
+from typing import Union, Callable
+
+class Bounce:
+    def __init__(self, func: Callable, *args):
+        self.func = func
+        self.args = args
+
+def trampoline(func):
+    """Decorator to make recursive functions stack-safe"""
+    def trampolined(*args):
+        result = func(*args)
+        while isinstance(result, Bounce):
+            result = result.func(*result.args)
+        return result
+    return trampolined
+
+@trampoline
+def factorial_trampoline(n: int, acc: int = 1) -> Union[int, Bounce]:
+    if n <= 1:
+        return acc
+    return Bounce(factorial_trampoline, n - 1, n * acc)
+
+fact_5 = factorial_trampoline(5)  # 120, no stack overflow
+
+# 16) Protocol Classes: structural typing
+from typing import Protocol
+
+class Showable(Protocol):
+    def show(self) -> str:
+        ...
+
+class Drawable(Protocol):
+    def draw(self) -> None:
+        ...
+
+@dataclass
+class Point:
+    x: int
+    y: int
+    
+    def show(self) -> str:
+        return f"Point({self.x}, {self.y})"
+    
+    def draw(self) -> None:
+        print(f"Drawing point at ({self.x}, {self.y})")
+
+def display_item(item: Showable) -> None:
+    print(item.show())
+
+def render_item(item: Drawable) -> None:
+    item.draw()
+
+# Duck typing - Point satisfies both protocols
+point = Point(1, 2)
+display_item(point)  # Works due to structural typing
+render_item(point)   # Works due to structural typing
 '''
 1. Line: a property, not an example — test many random inputs
 
