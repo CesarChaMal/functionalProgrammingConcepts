@@ -24,6 +24,7 @@
 
 import java.util.*;
 import java.util.function.*;
+import java.util.stream.Stream;
 
 public class FPJavaAnnotated {
   // 1) Lambda, Application, Currying, Partial Application
@@ -940,9 +941,9 @@ Key takeaways
   // Infinite streams (lazy evaluation)
   static Stream<Integer> fibonacci() {
     return Stream.iterate(new int[]{0, 1}, arr -> new int[]{arr[1], arr[0] + arr[1]})
-                 .mapToInt(arr -> arr[0]);
+                 .map(arr -> arr[0]);
   }
-  static final var first10Fibs = fibonacci().limit(10).toList(); // [0,1,1,2,3,5,8,13,21,34]
+  static final List<Integer> first10Fibs = fibonacci().limit(10).toList(); // [0,1,1,2,3,5,8,13,21,34]
 
   // 15) Tail Call Optimization: stack-safe recursion via iteration
   static int factorial(int n) {
